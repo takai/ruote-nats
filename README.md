@@ -2,7 +2,7 @@
 
 ruote-nats is an implementation of the ruote participant and receivers to process workitem on remote host using NATS.
 
-![System Diagram](image/system-diagram.png)
+![System Diagram](https://github.com/takai/ruote-nats/raw/master/image/system-diagram.png)
 
 ## Usage
 
