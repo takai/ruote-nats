@@ -1,0 +1,8 @@
+yardoc
+--title ruote-nats
+--no-private
+--protected lib/**/*.rb
+--markup-provider=redcarpet
+--markup=markdown
+--asset image
+- README.md
