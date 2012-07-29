@@ -8,7 +8,8 @@ module RuoteNATS
   class Participant
     include Ruote::LocalParticipant
 
-    DEFALUT_TIMEOUT = 1
+    DEFAULT_TIMEOUT = 1
+    DEFAULT_RETRY   = 0
 
     # @param [Ruote::Workitem] workitem
     def consume(workitem)
@@ -22,9 +23,15 @@ module RuoteNATS
         end
       end
 
-      timeout = (workitem.lookup('params.timeout') || DEFALUT_TIMEOUT).to_i
+      timeout = (workitem.lookup('params.timeout') || DEFAULT_TIMEOUT).to_i
+      @retry  ||= (workitem.lookup('params.retry') || DEFAULT_RETRY).to_i
       NATS.timeout(sid, timeout) do
-        handle_error(workitem)
+        @retry -= 1
+        if @retry < 0
+          handle_error(workitem)
+        else
+          consume(workitem)
+        end
       end
     rescue
       RuoteNATS.logger.error($!.message)
