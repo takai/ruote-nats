@@ -18,8 +18,7 @@ module RuoteNATS
 
       sid = NATS.request(queue_name, message) do |reply|
         RuoteNATS.logger.info do
-          executor = workitem.lookup('params.executor') || 'RuoteNATS::ShellExecutor'
-          "(#{workitem.sid}) request: #{executor} (#{workitem.lookup('params')})"
+          "(#{workitem.sid}) request: #{lookup_executor(workitem)} (#{workitem.lookup('params')})"
         end
       end
 
@@ -43,9 +42,8 @@ module RuoteNATS
 
     private
     def handle_error(workitem)
-      executor = workitem.lookup('params.executor') || 'RuoteNATS::ShellExecutor'
       RuoteNATS.logger.error do
-        "(#{workitem.sid}) timeout: #{executor} (#{workitem.lookup('params')})"
+        "(#{workitem.sid}) timeout: #{lookup_executor(workitem)} (#{workitem.lookup('params')})"
       end
 
       error = TimeoutError.new("Request timeout: workitem could not be processed.")
@@ -53,5 +51,10 @@ module RuoteNATS
       error_handler = context.error_handler
       error_handler.action_handle('error', workitem.to_h['fei'], error)
     end
+
+    def lookup_executor(workitem)
+      workitem.lookup('params.executor') || 'RuoteNATS::ShellExecutor'
+    end
+
   end
 end
