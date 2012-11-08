@@ -51,6 +51,15 @@ module RuoteNATS
           end
           subject.consume(workitem)
         end
+
+        it 'retries with :retry options' do
+          EM.add_timer(3) do
+            NATS.stop
+            fail "#handle_error must be called"
+          end
+          workitem.params['retry'] = 2
+          subject.consume(workitem)
+        end
       end
     end
   end
