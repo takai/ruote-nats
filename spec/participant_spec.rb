@@ -41,16 +41,16 @@ module RuoteNATS
           subject.consume(workitem)
         end
       end
-    end
-    context 'send successfully' do
-      before { subject.context = MockContext.new }
+      context 'error with timeout' do
+        before { subject.context = MockContext.new }
 
-      it 'sends command message' do
-        EM.add_timer(2) do
-          NATS.stop
-          fail "#handle_error must be called"
+        it 'sends command message' do
+          EM.add_timer(2) do
+            NATS.stop
+            fail "#handle_error must be called"
+          end
+          subject.consume(workitem)
         end
-        subject.consume(workitem)
       end
     end
   end
