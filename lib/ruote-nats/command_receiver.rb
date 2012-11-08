@@ -5,6 +5,8 @@ module RuoteNATS
     #
     # @param [String] queue_name
     def start(queue_name = 'remote.command')
+      @subscribe_queue_name ||= queue_name
+
       NATS.subscribe(queue_name, queue: queue_name, max: 1) do |message, reply|
         NATS.publish(reply, 'ACCEPT') do
           unpacked = MessagePack.unpack(message)
@@ -62,6 +64,7 @@ module RuoteNATS
           results = workitem.lookup("results.#{workitem.sid}")
           "(#{workitem.sid}) reply: #{lookup_executor(workitem)} (#{results})"
         end
+        start(@subscribe_queue_name)
       end
     end
   end
