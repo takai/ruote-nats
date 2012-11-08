@@ -26,11 +26,7 @@ module RuoteNATS
       @retry  ||= (workitem.lookup('params.retry') || DEFAULT_RETRY).to_i
       NATS.timeout(sid, timeout) do
         @retry -= 1
-        if @retry < 0
-          handle_error(workitem)
-        else
-          consume(workitem)
-        end
+        @retry > 0 ? handle_retry(workitem) : handle_timeout_error(workitem)
       end
     rescue
       RuoteNATS.logger.error($!.message)
@@ -41,7 +37,7 @@ module RuoteNATS
     end
 
     private
-    def handle_error(workitem)
+    def handle_timeout_error(workitem)
       RuoteNATS.logger.error do
         "(#{workitem.sid}) timeout: #{lookup_executor(workitem)} (#{workitem.lookup('params')})"
       end
@@ -50,6 +46,14 @@ module RuoteNATS
 
       error_handler = context.error_handler
       error_handler.action_handle('error', workitem.to_h['fei'], error)
+    end
+
+    def handle_retry(workitem)
+      RuoteNATS.logger.info do
+        "(#{workitem.sid}) retry: #{lookup_executor(workitem)} (#{workitem.lookup('params')})"
+      end
+
+      consume(workitem)
     end
 
     def lookup_executor(workitem)
