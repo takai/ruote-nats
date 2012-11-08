@@ -26,7 +26,7 @@ module RuoteNATS
       @retry  ||= (workitem.lookup('params.retry') || DEFAULT_RETRY).to_i
       NATS.timeout(sid, timeout) do
         @retry -= 1
-        @retry > 0 ? handle_retry(workitem) : handle_timeout_error(workitem)
+        @retry < 0 ? handle_timeout_error(workitem) : handle_retry(workitem)
       end
     rescue
       RuoteNATS.logger.error($!.message)
