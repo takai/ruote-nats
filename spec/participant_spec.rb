@@ -57,7 +57,7 @@ module RuoteNATS
             NATS.stop
             fail "#handle_error must be called"
           end
-          workitem.params['retry'] = 2
+          workitem.params['retry'] = 1
           subject.consume(workitem)
         end
       end
